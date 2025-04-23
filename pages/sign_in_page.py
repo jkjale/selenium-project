@@ -3,8 +3,8 @@ from pages.base_page import Page
 
 
 class SignInPage(Page):
-    email = 'leejhjake@gmail.com'
-    pw = '123Reelly.'
+    email = '***'
+    pw = '***'
     EMAIL_INPUT = (By.ID, "email-2")
     PW_INPUT = (By.ID, "field")
     CONTINUE_BTN = (By.XPATH, "//a[text()='Continue']")
