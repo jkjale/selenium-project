@@ -10,6 +10,7 @@ class Page:
         self.driver = driver
         self.base_url = 'https://soft.reelly.io'
         self.sign_in_url = 'https://soft.reelly.io/sign-in'
+        self.sign_up_url = 'https://soft.reelly.io/sign-up'
         self.wait = WebDriverWait(self.driver, timeout=10)
 
     def open_url(self, url):
@@ -25,7 +26,7 @@ class Page:
         logger.info(f'Clicking {locator}...')
         self.driver.find_element(*locator).click()
 
-    def input_text(self, text, *locator):
+    def input_text(self, text: str, *locator):
         logger.info(f'Entering text {text} by {locator}...')
         self.driver.find_element(*locator).send_keys(text)
 
@@ -81,26 +82,25 @@ class Page:
         actions.move_to_element(element)
         actions.perform()
 
-    def select_from_dropdown(self, dropdown_option, *locator):
-        dd = self.find_element(*locator)
-        select = Select(dd)
+    def select_from_dropdown(self, dropdown_option: str, *locator):
+        select = Select(self.find_element(*locator))
         select.select_by_value(dropdown_option)
 
-    def verify_text(self, expected_text, *locator):
+    def verify_text(self, expected_text: str, *locator):
         actual_text = self.find_element(*locator).text.strip().lower()
         assert expected_text.lower() == actual_text, f'Expected "{expected_text}" is not "{actual_text}"'
 
-    def verify_partial_text(self, expected_text, *locator):
+    def verify_partial_text(self, expected_text: str, *locator):
         actual_text = self.find_element(*locator).text.lower()
         assert expected_text.lower() in actual_text, f'Expected "{expected_text}" not in "{actual_text}"'
 
-    def verify_url(self, expected_url):
+    def verify_url(self, expected_url: str):
         self.wait.until(
             EC.url_to_be(expected_url),
             message=f'URL does not match {expected_url}'
         )
 
-    def verify_partial_url(self, expected_partial_url):
+    def verify_partial_url(self, expected_partial_url: str):
         self.wait.until(
             EC.url_contains(expected_partial_url),
             message=f'URL does not contain {expected_partial_url}'
