@@ -33,8 +33,8 @@ def browser_init(context, scenario_name):
     ### BROWSERSTACK ###
     # Register for BrowserStack, then grab it from https://www.browserstack.com/accounts/settings
     # To change devices go to https://www.browserstack.com/docs/automate/capabilities and go to "Legacy" and choose device
-    bs_user = 'jakelee_JI4Kfw'
-    bs_key = 'Tj9xcB5kA3YHSJMzETfq'
+    bs_user = '***'
+    bs_key = '***'
     url = f'http://{bs_user}:{bs_key}@hub-cloud.browserstack.com/wd/hub'
     options = Options()
     bstack_options = {
