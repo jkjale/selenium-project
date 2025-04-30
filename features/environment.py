@@ -1,9 +1,10 @@
+import os
+from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
-
 from app.application import Application
 
 
@@ -33,8 +34,9 @@ def browser_init(context, scenario_name):
     ### BROWSERSTACK ###
     # Register for BrowserStack, then grab it from https://www.browserstack.com/accounts/settings
     # To change devices go to https://www.browserstack.com/docs/automate/capabilities and go to "Legacy" and choose device
-    bs_user = '***'
-    bs_key = '***'
+    load_dotenv()
+    bs_user = os.getenv("BS_USERNAME")
+    bs_key = os.getenv("BS_KEY")
     url = f'http://{bs_user}:{bs_key}@hub-cloud.browserstack.com/wd/hub'
     options = Options()
     bstack_options = {
