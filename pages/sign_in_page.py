@@ -1,13 +1,17 @@
+import os
 from selenium.webdriver.common.by import By
 from pages.base_page import Page
 
 
 class SignInPage(Page):
-    email = '***'
-    pw = '***'
     EMAIL_INPUT = (By.ID, "email-2")
     PW_INPUT = (By.ID, "field")
     CONTINUE_BTN = (By.XPATH, "//a[text()='Continue']")
+
+    def __init__(self, driver):
+        super().__init__(driver)
+        self.email = os.getenv("EMAIL")
+        self.pw = os.getenv("PW")
 
     def open_sign_in_page(self):
         self.open_url(self.sign_in_url)
