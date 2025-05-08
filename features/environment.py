@@ -14,6 +14,10 @@ from support.logger import logger
 # Generate Allure report
 # allure serve test_results/
 
+# Behave commands
+# behave
+# behave -D browser=browserstack
+
 
 def before_all(context):
     context.config.setup_logging()
@@ -28,7 +32,7 @@ def before_all(context):
     else:
         browser = os.getenv("BROWSER", "chrome").lower()
         os.environ["BROWSER"] = browser  # Ensure it's set as env variable for later use
-
+    print("Using browser:", browser)
 
 def browser_init(context, scenario_name):
     # Get the browser type from the environment variable or use 'chrome' as default
@@ -36,14 +40,25 @@ def browser_init(context, scenario_name):
 
     # Initialize the appropriate browser based on the selected type
     if browser == "chrome":
+        # Check if we need to emulate a mobile device
+        device_name = os.getenv("MOBILE_EMULATION", None)
+        chrome_options = Options()
+        if device_name:
+            # Set up mobile emulation for a specific device (e.g., Nexus 5)
+            mobile_emulation = {
+                "deviceName": device_name  # Fetches the device name from the env
+            }
+            chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
         driver_path = ChromeDriverManager().install()
         service = Service(driver_path)
-        context.driver = webdriver.Chrome(service=service)
+        context.driver = webdriver.Chrome(service=service, options=chrome_options)
+        context.driver.maximize_window()
 
     elif browser == "firefox":
         driver_path = GeckoDriverManager().install()
         service = Service(driver_path)
         context.driver = webdriver.Firefox(service=service)
+        context.driver.maximize_window()
 
     elif browser == "headless":
         options = Options()
@@ -52,14 +67,16 @@ def browser_init(context, scenario_name):
         context.driver = webdriver.Chrome(options=options, service=service)
 
     elif browser == "browserstack":
+        # Register for BrowserStack, then grab user and key from https://www.browserstack.com/accounts/settings
+        # To change devices go to https://www.browserstack.com/docs/automate/capabilities and go to "Legacy" and choose device
         bs_user = os.getenv("BS_USERNAME")
         bs_key = os.getenv("BS_KEY")
         url = f"http://{bs_user}:{bs_key}@hub-cloud.browserstack.com/wd/hub"
         options = Options()
         bstack_options = {
-            "os": "Windows",
-            "osVersion": "11",
-            "browserName": "chrome",
+            "osVersion" : "13.0",
+            "deviceName" : "Samsung Galaxy S23 Ultra",
+            "consoleLogs" : "info",
             "sessionName": scenario_name,
         }
         options.set_capability("bstack:options", bstack_options)
@@ -68,7 +85,7 @@ def browser_init(context, scenario_name):
     else:
         raise ValueError(f"Unsupported browser: {browser}")
 
-    context.driver.maximize_window()
+    print(f"Selected browser: {browser}")
     context.driver.implicitly_wait(4)
     context.app = Application(context.driver)
 
