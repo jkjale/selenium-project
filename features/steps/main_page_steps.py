@@ -10,4 +10,7 @@ def switch_to_new_window(context):
 
 @then('User lands on main page and sees "Settings" link')
 def verify_settings_link(context):
-    context.app.main_page.verify_settings_link()
+    if context.is_mobile:
+        context.app.main_page.verify_settings_link_mobile()
+    else:
+        context.app.main_page.verify_settings_link()

@@ -1,4 +1,5 @@
 import os
+import re
 from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -17,6 +18,7 @@ from support.logger import logger
 # Behave commands
 # behave
 # behave -D browser=browserstack
+# ENABLE_MOBILE_EMULATION=true MOBILE_EMULATION="iPhone X" behave -D browser=chrome
 
 
 def before_all(context):
@@ -38,15 +40,13 @@ def browser_init(context, scenario_name):
     # Get the browser type from the environment variable or use 'chrome' as default
     browser = os.getenv("BROWSER", "chrome").lower()
 
-    # Initialize the appropriate browser based on the selected type
     if browser == "chrome":
-        # Check if we need to emulate a mobile device
-        device_name = os.getenv("MOBILE_EMULATION", None)
         chrome_options = Options()
-        if device_name:
-            # Set up mobile emulation for a specific device (e.g., Nexus 5)
+        context.is_mobile = os.getenv("ENABLE_MOBILE_EMULATION", "false").lower() == "true"
+        device_name = os.getenv("MOBILE_EMULATION", None)
+        if context.is_mobile and device_name:
             mobile_emulation = {
-                "deviceName": device_name  # Fetches the device name from the env
+                "deviceName": device_name
             }
             chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
         driver_path = ChromeDriverManager().install()
@@ -73,12 +73,16 @@ def browser_init(context, scenario_name):
         bs_key = os.getenv("BS_KEY")
         url = f"http://{bs_user}:{bs_key}@hub-cloud.browserstack.com/wd/hub"
         options = Options()
+        device_name = "Google Pixel 9"
         bstack_options = {
-            "osVersion" : "13.0",
-            "deviceName" : "Samsung Galaxy S23 Ultra",
+            "osVersion" : "15.0",
+            "deviceName" : device_name,
             "consoleLogs" : "info",
             "sessionName": scenario_name,
         }
+        # Use regex to check if the device name contains mobile-related keywords
+        mobile_pattern = re.compile(r"(samsung|iphone|pixel|galaxy|android)", re.IGNORECASE)
+        context.is_mobile = bool(mobile_pattern.search(device_name))
         options.set_capability("bstack:options", bstack_options)
         context.driver = webdriver.Remote(command_executor=url, options=options)
 
